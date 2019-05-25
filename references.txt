@@ -1,0 +1,8 @@
+References for dataset:
+  - http://findit.univ-lr.fr/download-the-dataset/ 
+  - https://expressexpense.com/view-receipts.php 
+  - https://hal.archives-ouvertes.fr/hal-01654191/document
+
+References for OCR API:
+  - https://i2s.symisc.net/ 
+  - https://github.com/tesseract-ocr/ <<<<
