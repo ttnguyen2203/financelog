@@ -1,0 +1,19 @@
+Core functionalities:
+  - Read / parse receipt pictures
+  - Organizing purchases (chronological + category)
+  
+Additional functionalities:
+
+  
+  
+MAIN:
+  - OCR:
+    - Organize:
+      - Categorize:
+        - sort()
+        - toExcel()
+      - getTaxes()
+      
+  - User
+    - self.name:
+    - self.picture_path:
