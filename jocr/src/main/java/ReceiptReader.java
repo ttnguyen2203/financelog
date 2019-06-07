@@ -1,4 +1,5 @@
 package jocr.src.main.java;
+
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
@@ -74,7 +75,7 @@ public final class ReceiptReader {
 
         int maxWidth = 0;
         int maxHeight = 0;
-        CvRect contour = null;
+        CvRect contour;
         CvSeq seqFounded = null;
         CvSeq nextSeq = new CvSeq();
         for (nextSeq = contours; nextSeq != null; nextSeq = nextSeq.h_next()) {
