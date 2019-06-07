@@ -11,16 +11,15 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="DefaultGradleProjectSettings">
-    <option name="testRunner" value="GRADLE" />
-    <option name="delegatedBuild" value="true" />
+    <option name="isMigrated" value="true" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptReader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="126" column="42" lean-forward="true" selection-start-line="126" selection-start-column="42" selection-end-line="126" selection-end-column="42" />
+            <state relative-caret-position="226">
+              <caret line="44" column="43" lean-forward="true" selection-start-line="41" selection-start-column="8" selection-end-line="44" selection-end-column="43" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -31,22 +30,29 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptParser.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+            <state relative-caret-position="51">
+              <caret line="3" column="29" lean-forward="true" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptParserImpl.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="218">
+              <caret line="27" column="27" selection-start-line="27" selection-start-column="27" selection-end-line="27" selection-end-column="27" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptParserImpl.java">
+        <entry file="file://$PROJECT_DIR$/src/test/java/ReceiptParserImplTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="35" selection-start-line="35" selection-end-line="35" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#698#699#0" expanded="true" />
-                <element signature="e#725#726#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="136">
+              <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -54,11 +60,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/TestReceiptReader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="65" selection-start-line="6" selection-start-column="65" selection-end-line="6" selection-end-column="65" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state>
+              <caret column="40" lean-forward="true" selection-start-column="40" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -90,8 +93,10 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/jocr.iml" />
         <option value="$PROJECT_DIR$/src/test/java/TestReceiptReader.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ReceiptReader.java" />
+        <option value="$PROJECT_DIR$/src/test/java/ReceiptParserImpl.java" />
         <option value="$PROJECT_DIR$/src/main/java/ReceiptParser.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ReceiptReader.java" />
+        <option value="$PROJECT_DIR$/src/test/java/ReceiptParserImplTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/ReceiptParserImpl.java" />
       </list>
     </option>
@@ -103,9 +108,9 @@
       </MavenImportingSettings>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="116" />
-    <option name="y" value="122" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="123" />
+    <option name="y" value="47" />
     <option name="width" value="1750" />
     <option name="height" value="980" />
   </component>
@@ -179,7 +184,14 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.ReceiptParserImplTest">
+    <configuration name="ReceiptParserImplTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="ReceiptParserImplTest" />
+      <module name="jocr" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="TestReceiptReader" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="TestReceiptReader" />
       <module name="jocr" />
@@ -189,6 +201,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.ReceiptParserImplTest" />
         <item itemvalue="Application.TestReceiptReader" />
       </list>
     </recent_temporary>
@@ -207,10 +220,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="93" y="98" width="1400" height="784" extended-state="0" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.02835821" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20402685" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -219,7 +232,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.20113315" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.19971672" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -227,7 +240,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info anchor="bottom" id="Messages" order="10" weight="0.5644172" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.51983005" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -254,27 +267,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/TestReceiptReader.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptParser.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="65" selection-start-line="6" selection-start-column="65" selection-end-line="6" selection-end-column="65" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="51">
+          <caret line="3" column="29" lean-forward="true" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptParser.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/TestReceiptReader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+        <state>
+          <caret column="40" lean-forward="true" selection-start-column="40" selection-end-column="40" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptReader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="126" column="42" lean-forward="true" selection-start-line="126" selection-start-column="42" selection-end-line="126" selection-end-column="42" />
+        <state relative-caret-position="226">
+          <caret line="44" column="43" lean-forward="true" selection-start-line="41" selection-start-column="8" selection-end-line="44" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -283,13 +293,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ReceiptParserImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="35" selection-start-line="35" selection-end-line="35" />
+        <state relative-caret-position="218">
+          <caret line="27" column="27" selection-start-line="27" selection-start-column="27" selection-end-line="27" selection-end-column="27" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#698#699#0" expanded="true" />
-            <element signature="e#725#726#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/ReceiptParserImplTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
         </state>
       </provider>
     </entry>

@@ -127,9 +127,13 @@ public final class ReceiptReader {
         if (bottomHeight > resultHeight) {
             resultHeight = bottomHeight;
         }
-        float[] sourcePoints = { topLeft.x(), topLeft.x(),
+        float[] sourcePoints = { topLeft.x(), topLeft.y(),
             topRight.x(), topRight.y(), bottomLeft.x(),
             bottomLeft.y(), bottomRight.x(), bottomRight.y()};
+        for (int m = 0; m < sourcePoints.length; m ++) {
+            System.out.println(sourcePoints[m]);
+
+        }
         float[] destinationPoints = {0, 0, resultWidth, 0, 0, resultHeight, resultWidth, resultHeight};
         CvMat homography = cvCreateMat(3, 3, CV_32FC1);
         opencv_imgproc.cvGetPerspectiveTransform(sourcePoints, destinationPoints, homography);

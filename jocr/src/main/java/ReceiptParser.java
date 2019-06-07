@@ -1,6 +1,7 @@
+package jocr.src.main.java;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 
 public interface ReceiptParser {
-    public abstract IplImage cropReceipt(String path, float[][] points);
-    public abstract String readReceipt(IplImage croppedImage);
+    abstract IplImage cropReceipt(String path, float[][] points);
+    abstract String readReceipt(IplImage croppedImage);
 }
