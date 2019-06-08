@@ -1,16 +1,26 @@
 package jocr.src.main.java;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.lept;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.CvMat;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_imgproc;
+
+import static org.bytedeco.javacpp.lept.pixDestroy;
+import static org.bytedeco.javacpp.lept.pixRead;
 import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
-import static java.lang.Math.max;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
+import static java.lang.Math.max;
 import java.io.File;
+import java.net.URI;
+import java.net.URL;
+
 import jocr.src.main.java.ReceiptParser;
+import org.bytedeco.javacpp.tesseract.*;
 
 public class ReceiptParserImpl implements ReceiptParser {
+
 
     /*
         Method to perform perspective transform on the given points to fit the receipt
@@ -20,26 +30,18 @@ public class ReceiptParserImpl implements ReceiptParser {
         @param points: array of paired coordinates [float x, float y], in order:
                 top left, top right, bottom right, bottom left
      */
-    // TODO: DEBUG THIS METHOD, parsing corner isnt working correctly
-    public IplImage cropReceipt(String path, float[][] points) {
+    public IplImage cropReceipt(String path, int[][] points) {
         File f = new File(path);
         String absolute_path = f.getAbsolutePath();
         IplImage receiptImage = cvLoadImage(absolute_path);
 
-        float[] TL = points[0];
-        float[] TR = points[1];
-        float[] BR = points[2];
-        float[] BL = points[3];
+        int[] TL = points[0];
+        int[] TR = points[1];
+        int[] BR = points[2];
+        int[] BL = points[3];
 
-        int width = Math.max(EuclideanDist(TL, TR), EuclideanDist(BL, BR));
-        int height = Math.max(EuclideanDist(TL, BL), EuclideanDist(TR, BR));
-
-        opencv_imgproc.cvRectangle(receiptImage, new opencv_core.CvPoint((int) TL[0], (int) TL[1]),
-                new opencv_core.CvPoint((int) BR[0], (int) BR[1]), cvScalar(225, 225, 0, 0));
-
-        File ogPicRectangle = new File("D:/Projects/financelog/jocr/images/receipt_boundingbox.jpeg");
-        System.out.println(ogPicRectangle.getAbsolutePath());
-        cvSaveImage(ogPicRectangle.getAbsolutePath(), receiptImage);
+        int width = max(EuclideanDist(TL, TR), EuclideanDist(BL, BR));
+        int height = max(EuclideanDist(TL, BL), EuclideanDist(TR, BR));
 
         float[] srcPoints = {TL[0], TL[1], TR[0], TR[1], BL[0], BL[1], BR[0], BR[1]};
         float [] dstPoints = {0, 0, width, 0, 0, height, width, height};
@@ -51,25 +53,20 @@ public class ReceiptParserImpl implements ReceiptParser {
         opencv_imgproc.cvWarpPerspective(receiptImage, dstImage, M);
         dstImage = cropImage(dstImage, 0, 0, width, height);
 
-
-        File transformedPic = new File("D:/Projects/financelog/jocr/images/receipt_pertrans.jpeg");
-        System.out.println(transformedPic.getAbsolutePath());
-        cvSaveImage(transformedPic.getAbsolutePath(), dstImage);
-
-        return null;
+        return dstImage;
     }
 
     private IplImage cropImage( IplImage srcImage, int fromX, int fromY,
-                                int toWidth, int toHeight){
-        cvSetImageROI(srcImage, cvRect(fromX,fromY,toWidth,toHeight));
+                                int toX, int toY){
+        cvSetImageROI(srcImage, cvRect(fromX,fromY,toX,toY));
         IplImage destImage = cvCloneImage(srcImage);
         cvCopy(srcImage, destImage);
         return destImage;
     }
 
-    private int EuclideanDist(float[] point1, float[] point2) {
-        float x = Math.abs(point1[0] - point2[0]);
-        float y = Math.abs(point1[1] - point2[1]);
+    private int EuclideanDist(int[] point1, int[] point2) {
+        int x = Math.abs(point1[0] - point2[0]);
+        int y = Math.abs(point1[1] - point2[1]);
         return (int) Math.sqrt(x * x + y * y);
     }
 
@@ -79,11 +76,39 @@ public class ReceiptParserImpl implements ReceiptParser {
             gray-scale, binary threshold, and call tesseract API
 
         @params:
-            - cropped_image: returned output of cropReceipt
+            - cropped_image: output of cropReceipt
      */
-
+    //TODO: resource pathing 
     public String readReceipt(IplImage croppedImage) {
-        return null;
+        // preprocessing
+        IplImage preprocessed = preprocessReceipt(croppedImage);
+
+        opencv_core.Mat toMat = opencv_core.cvarrToMat(preprocessed);
+
+        final URL tessDataResource = getClass().getResource("/");
+        System.out.print(tessDataResource);
+//        final File tessFolder = new File(tessDataResource.toURI());
+//        final String tessFolderPath = tessFolder.getAbsolutePath();
+        //System.out.println(tessFolderPath);
+        BytePointer outText;
+        TessBaseAPI api = new TessBaseAPI();
+        if (api.Init("E:/Program Files/Tesseract-OCR/tessdata/", "eng") != 0) {
+            System.err.println("Could not initialize tesseract.");
+            System.exit(1);
+        }
+        api.SetVariable("tessedit_char_whitelist", "0123456789,/ABCDEFGHIJKLMNOPQRSTUVWXY");
+        api.SetImage(toMat.data().asBuffer(),toMat.size().width(),toMat.size().height(),toMat.channels(), (int)toMat.elemSize1());
+        outText = api.GetUTF8Text();
+        String string = outText.getString();
+        api.End();
+        outText.deallocate();
+        return string;
+    }
+
+    private IplImage preprocessReceipt(IplImage image) {
+        IplImage dstImage = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
+        opencv_imgproc.cvCvtColor(image, dstImage, opencv_imgproc.CV_BGR2GRAY);
+        return dstImage;
     }
 
 }
