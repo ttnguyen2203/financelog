@@ -31,25 +31,46 @@ public class ReceiptParserImpl implements ReceiptParser {
         float[] BR = points[2];
         float[] BL = points[3];
 
-        // topright.x - bottomleft.x or bottomright.x - bottomeleft.x
-        int width = max((int) (TR[0] - BL[0]), (int) (BR[0] - BL[0]));
-        // bottomleft.y - topleft.y or bottomright.y - topleft.y
-        int height = max((int) (BL[1] - TL[1]), (int) (BR[1] - TL[1]));
+        int width = Math.max(EuclideanDist(TL, TR), EuclideanDist(BL, BR));
+        int height = Math.max(EuclideanDist(TL, BL), EuclideanDist(TR, BR));
 
-        float[] srcPoints = {TL[0], TL[1], TR[0], TR[1], BR[0], BR[1], BL[0], BL[1]};
-        float [] dstPoints = {0, 0, 0, height, width, height, width, 0};
+        opencv_imgproc.cvRectangle(receiptImage, new opencv_core.CvPoint((int) TL[0], (int) TL[1]),
+                new opencv_core.CvPoint((int) BR[0], (int) BR[1]), cvScalar(225, 225, 0, 0));
+
+        File ogPicRectangle = new File("D:/Projects/financelog/jocr/images/receipt_boundingbox.jpeg");
+        System.out.println(ogPicRectangle.getAbsolutePath());
+        cvSaveImage(ogPicRectangle.getAbsolutePath(), receiptImage);
+
+        float[] srcPoints = {TL[0], TL[1], TR[0], TR[1], BL[0], BL[1], BR[0], BR[1]};
+        float [] dstPoints = {0, 0, width, 0, 0, height, width, height};
 
         CvMat M = cvCreateMat(3, 3, CV_32F);
         opencv_imgproc.cvGetPerspectiveTransform(srcPoints, dstPoints, M);
 
         IplImage dstImage = cvCloneImage(receiptImage);
         opencv_imgproc.cvWarpPerspective(receiptImage, dstImage, M);
+        dstImage = cropImage(dstImage, 0, 0, width, height);
+
 
         File transformedPic = new File("D:/Projects/financelog/jocr/images/receipt_pertrans.jpeg");
         System.out.println(transformedPic.getAbsolutePath());
         cvSaveImage(transformedPic.getAbsolutePath(), dstImage);
 
         return null;
+    }
+
+    private IplImage cropImage( IplImage srcImage, int fromX, int fromY,
+                                int toWidth, int toHeight){
+        cvSetImageROI(srcImage, cvRect(fromX,fromY,toWidth,toHeight));
+        IplImage destImage = cvCloneImage(srcImage);
+        cvCopy(srcImage, destImage);
+        return destImage;
+    }
+
+    private int EuclideanDist(float[] point1, float[] point2) {
+        float x = Math.abs(point1[0] - point2[0]);
+        float y = Math.abs(point1[1] - point2[1]);
+        return (int) Math.sqrt(x * x + y * y);
     }
 
 
