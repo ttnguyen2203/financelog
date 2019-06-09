@@ -12,24 +12,37 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
 import static java.lang.Math.max;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
 
 import jocr.src.main.java.ReceiptParser;
 import org.bytedeco.javacpp.tesseract.*;
-import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.Java2DFrameConverter;
-import org.bytedeco.javacv.OpenCVFrameConverter;
 
-import javax.imageio.ImageIO;
 
 public class ReceiptParserImpl implements ReceiptParser {
+    TessBaseAPI api;
+    static final String charLimit = null; //= "0123456789:$.,/ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
+    public void ReceiptParserImpl() {
+        try {
+            final URL tessDataResource = getClass().getResource("/tessdata");
+            final File tessFolder = new File(tessDataResource.toURI());
+            final String tessFolderPath = tessFolder.getAbsolutePath();
+            //System.out.println(tessFolderPath);
+
+            TessBaseAPI api = new TessBaseAPI();
+            if (api.Init( tessFolderPath, "eng") != 0) {
+                System.err.println("Could not initialize tesseract.");
+                System.exit(1);
+            }
+            if (charLimit == null) {
+                api.SetVariable("tessedit_char_whitelist", charLimit);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     /*
         Method to perform perspective transform on the given points to fit the receipt
             ROI to the entire image
@@ -87,50 +100,52 @@ public class ReceiptParserImpl implements ReceiptParser {
             - cropped_image: output of cropReceipt
      */
     public String readReceipt(IplImage croppedImage) {
+
         // preprocessing
         IplImage preprocessed = preprocessReceipt(croppedImage);
-
         opencv_core.Mat toMat = opencv_core.cvarrToMat(preprocessed);
 
-//        try {
-//            final URL tessDataResource = getClass().getResource("/tessdata");
-//            final File tessFolder = new File(tessDataResource.toURI());
-//            final String tessFolderPath = tessFolder.getAbsolutePath();
-//            System.out.println(tessFolderPath);
-//            BytePointer outText;
-//            TessBaseAPI api = new TessBaseAPI();
-//            api.SetVariable("tessedit_char_whitelist", "01234556789,/ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-//            if (api.Init(tessFolderPath, "eng") != 0) {
-//                System.err.println("Could not initialize tesseract");
-//            }
-//            lept.PIX image = pixRead("D:/Projects/financelog/jocr/images/receipt_preprocessed.JPEG");
-//            api.SetImage(image);
-//            outText = api.GetUTF8Text();
-//            String string = outText.getString();
-//            api.End();
-//            outText.deallocate();
-//            pixDestroy(image);
-//            return string;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
+        //API call
+        //TODO: test this method with multiple inputs to make sure that api.SetImage does not need to be cleared
+        BytePointer outText;
+        api.SetImage(toMat.data().asBuffer(), toMat.size().width(), toMat.size().height(), toMat.channels(), (int)toMat.step());
+        outText = api.GetUTF8Text();
+        String string = outText.getString();
+        outText.deallocate();
+        return string;
+    }
+
+    /*
+        call to close api instance
+     */
+    public void cleanUp() {
+        api.End();
+    }
+
+
+    /*
+        Debug version of method
+        @param cropped_image: output of cropReceipt
+    */
+    public String readReceiptDebug(IplImage croppedImage) {
+        // preprocessing
+        IplImage preprocessed = preprocessReceipt(croppedImage);
+        opencv_core.Mat toMat = opencv_core.cvarrToMat(preprocessed);
 
         try {
             final URL tessDataResource = getClass().getResource("/tessdata");
-            System.out.println(tessDataResource);
+            //System.out.println(tessDataResource);
             final File tessFolder = new File(tessDataResource.toURI());
             final String tessFolderPath = tessFolder.getAbsolutePath();
-            System.out.println(tessFolderPath);
+            //System.out.println(tessFolderPath);
             BytePointer outText;
             TessBaseAPI api = new TessBaseAPI();
             if (api.Init( tessFolderPath, "eng") != 0) {
                 System.err.println("Could not initialize tesseract.");
                 System.exit(1);
             }
-            lept.PIX image = toPIX(preprocessed);
-            api.SetVariable("tessedit_char_whitelist", "0123456789,/ABCDEFGHIJKLMNOPQRSTUVWXY");
-            api.SetImage(toMat.data().asBuffer(), toMat.rows(), toMat.cols(), 1, (int)toMat.step());
+            //api.SetVariable("tessedit_char_whitelist", "0123456789:$.,/ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            api.SetImage(toMat.data().asBuffer(), toMat.size().width(), toMat.size().height(), toMat.channels(), (int)toMat.step());
             outText = api.GetUTF8Text();
             String string = outText.getString();
             api.End();
@@ -141,13 +156,26 @@ public class ReceiptParserImpl implements ReceiptParser {
             return null;
         }
     }
-    
 
+    /*
+        Handles conversion of data type from OpenCV (IplImage) to data type for Tesseract API (lept.PIX)
+        @param image: IplImage returned from preprocessing / OpenCV data type
+     */
+    private PIX toPIXHack(IplImage image) {
+        cvSaveImage("temp_PIX_hack.jpg", image);
+        return pixRead("/temp_PIX_hack.jpg");
+    }
 
-
+    /*
+        Method to preprocess cropped receipt image for better OCR performance
+        Currently does: convert to grayscale, binarize, smooth
+        @param image: cropped IplImage
+     */
     private IplImage preprocessReceipt(IplImage image) {
         IplImage dstImage = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
         opencv_imgproc.cvCvtColor(image, dstImage, opencv_imgproc.CV_BGR2GRAY);
+        opencv_imgproc.cvSmooth(dstImage, dstImage, opencv_imgproc.CV_MEDIAN, 3, 0, 0, 0);
+        opencv_imgproc.cvThreshold(dstImage, dstImage, 0, 255, opencv_imgproc.CV_THRESH_OTSU)
         return dstImage;
     }
 
