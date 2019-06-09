@@ -20,33 +20,36 @@ import org.bytedeco.javacpp.tesseract.*;
 
 
 public class ReceiptParserImpl implements ReceiptParser {
-    TessBaseAPI api;
-    static final String charLimit = null; //= "0123456789:$.,/ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private TessBaseAPI api;
+    private boolean charLimit = false;
+    private static final String allowedChar = "0123456789:$.,/ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
-    public void ReceiptParserImpl() {
+    public ReceiptParserImpl() {
         try {
             final URL tessDataResource = getClass().getResource("/tessdata");
             final File tessFolder = new File(tessDataResource.toURI());
             final String tessFolderPath = tessFolder.getAbsolutePath();
             //System.out.println(tessFolderPath);
 
-            TessBaseAPI api = new TessBaseAPI();
-            if (api.Init( tessFolderPath, "eng") != 0) {
+            this.api = new TessBaseAPI();
+            if (this.api.Init( tessFolderPath, "eng") != 0) {
                 System.err.println("Could not initialize tesseract.");
                 System.exit(1);
             }
-            if (charLimit == null) {
-                api.SetVariable("tessedit_char_whitelist", charLimit);
+            if (charLimit) {
+                this.api.SetVariable("tessedit_char_whitelist", allowedChar);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
+
+
     /*
         Method to perform perspective transform on the given points to fit the receipt
             ROI to the entire image
-
         @param path: (String) path to picture of receipt
         @param points: array of paired coordinates [float x, float y], in order:
                 top left, top right, bottom right, bottom left
@@ -63,7 +66,6 @@ public class ReceiptParserImpl implements ReceiptParser {
 
         int width = max(EuclideanDist(TL, TR), EuclideanDist(BL, BR));
         int height = max(EuclideanDist(TL, BL), EuclideanDist(TR, BR));
-
         float[] srcPoints = {TL[0], TL[1], TR[0], TR[1], BL[0], BL[1], BR[0], BR[1]};
         float [] dstPoints = {0, 0, width, 0, 0, height, width, height};
 
@@ -108,8 +110,8 @@ public class ReceiptParserImpl implements ReceiptParser {
         //API call
         //TODO: test this method with multiple inputs to make sure that api.SetImage does not need to be cleared
         BytePointer outText;
-        api.SetImage(toMat.data().asBuffer(), toMat.size().width(), toMat.size().height(), toMat.channels(), (int)toMat.step());
-        outText = api.GetUTF8Text();
+        this.api.SetImage(toMat.data().asBuffer(), toMat.size().width(), toMat.size().height(), toMat.channels(), (int)toMat.step());
+        outText = this.api.GetUTF8Text();
         String string = outText.getString();
         outText.deallocate();
         return string;
@@ -119,9 +121,8 @@ public class ReceiptParserImpl implements ReceiptParser {
         call to close api instance
      */
     public void cleanUp() {
-        api.End();
+        this.api.End();
     }
-
 
     /*
         Debug version of method
@@ -156,6 +157,7 @@ public class ReceiptParserImpl implements ReceiptParser {
             return null;
         }
     }
+
 
     /*
         Handles conversion of data type from OpenCV (IplImage) to data type for Tesseract API (lept.PIX)
