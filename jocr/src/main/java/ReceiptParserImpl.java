@@ -6,18 +6,26 @@ import org.bytedeco.javacpp.opencv_core.CvMat;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_imgproc;
 
-import static org.bytedeco.javacpp.lept.pixDestroy;
-import static org.bytedeco.javacpp.lept.pixRead;
+import static org.bytedeco.javacpp.lept.*;
 import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
 import static java.lang.Math.max;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
 
 import jocr.src.main.java.ReceiptParser;
 import org.bytedeco.javacpp.tesseract.*;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameConverter;
+
+import javax.imageio.ImageIO;
 
 public class ReceiptParserImpl implements ReceiptParser {
 
@@ -78,61 +86,62 @@ public class ReceiptParserImpl implements ReceiptParser {
         @params:
             - cropped_image: output of cropReceipt
      */
-    //TODO: resource pathing
     public String readReceipt(IplImage croppedImage) {
         // preprocessing
         IplImage preprocessed = preprocessReceipt(croppedImage);
 
         opencv_core.Mat toMat = opencv_core.cvarrToMat(preprocessed);
 
-        try {
-            final URL tessDataResource = getClass().getResource("/tessdata");
-            final File tessFolder = new File(tessDataResource.toURI());
-            final String tessFolderPath = tessFolder.getAbsolutePath();
-            System.out.println(tessFolderPath);
-            BytePointer outText;
-            TessBaseAPI api = new TessBaseAPI();
-            api.SetVariable("tessedit_char_whitelist", "01234556789,/ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-            if (api.Init(tessFolderPath, "eng") != 0) {
-                System.err.println("Could not initialize tesseract");
-            }
-            lept.PIX image = pixRead("D:/Projects/financelog/jocr/images/receipt_preprocessed.JPEG");
-            api.SetImage(image);
-            outText = api.GetUTF8Text();
-            String string = outText.getString();
-            api.End();
-            outText.deallocate();
-            pixDestroy(image);
-            return string;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
 //        try {
 //            final URL tessDataResource = getClass().getResource("/tessdata");
-////            System.out.println(tessDataResource);
 //            final File tessFolder = new File(tessDataResource.toURI());
 //            final String tessFolderPath = tessFolder.getAbsolutePath();
 //            System.out.println(tessFolderPath);
 //            BytePointer outText;
 //            TessBaseAPI api = new TessBaseAPI();
-//            if (api.Init( tessFolderPath, "eng") != 0) {
-//                System.err.println("Could not initialize tesseract.");
-//                System.exit(1);
+//            api.SetVariable("tessedit_char_whitelist", "01234556789,/ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+//            if (api.Init(tessFolderPath, "eng") != 0) {
+//                System.err.println("Could not initialize tesseract");
 //            }
-//            api.SetVariable("tessedit_char_whitelist", "0123456789,/ABCDEFGHIJKLMNOPQRSTUVWXY");
-//            api.SetImage(toMat.data().asBuffer(), toMat.size().width(), toMat.size().height(), toMat.channels(), (int) toMat.elemSize1());
+//            lept.PIX image = pixRead("D:/Projects/financelog/jocr/images/receipt_preprocessed.JPEG");
+//            api.SetImage(image);
 //            outText = api.GetUTF8Text();
 //            String string = outText.getString();
 //            api.End();
 //            outText.deallocate();
+//            pixDestroy(image);
 //            return string;
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //            return null;
 //        }
+
+        try {
+            final URL tessDataResource = getClass().getResource("/tessdata");
+            System.out.println(tessDataResource);
+            final File tessFolder = new File(tessDataResource.toURI());
+            final String tessFolderPath = tessFolder.getAbsolutePath();
+            System.out.println(tessFolderPath);
+            BytePointer outText;
+            TessBaseAPI api = new TessBaseAPI();
+            if (api.Init( tessFolderPath, "eng") != 0) {
+                System.err.println("Could not initialize tesseract.");
+                System.exit(1);
+            }
+            lept.PIX image = toPIX(preprocessed);
+            api.SetVariable("tessedit_char_whitelist", "0123456789,/ABCDEFGHIJKLMNOPQRSTUVWXY");
+            api.SetImage(toMat.data().asBuffer(), toMat.rows(), toMat.cols(), 1, (int)toMat.step());
+            outText = api.GetUTF8Text();
+            String string = outText.getString();
+            api.End();
+            outText.deallocate();
+            return string;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+    
 
 
 
