@@ -79,21 +79,6 @@ public class ReceiptParserImpl implements ReceiptParser {
         return dstImage;
     }
 
-    private IplImage cropImage( IplImage srcImage, int fromX, int fromY,
-                                int toX, int toY){
-        cvSetImageROI(srcImage, cvRect(fromX,fromY,toX,toY));
-        IplImage destImage = cvCloneImage(srcImage);
-        cvCopy(srcImage, destImage);
-        return destImage;
-    }
-
-    private int EuclideanDist(int[] point1, int[] point2) {
-        int x = Math.abs(point1[0] - point2[0]);
-        int y = Math.abs(point1[1] - point2[1]);
-        return (int) Math.sqrt(x * x + y * y);
-    }
-
-
     /*
         Method read text from cropped receipt picture by converting the picture to
             gray-scale, binary threshold, and call tesseract API
@@ -161,6 +146,7 @@ public class ReceiptParserImpl implements ReceiptParser {
 
     /*
         Handles conversion of data type from OpenCV (IplImage) to data type for Tesseract API (lept.PIX)
+        Temporary workaround
         @param image: IplImage returned from preprocessing / OpenCV data type
      */
     private PIX toPIXHack(IplImage image) {
@@ -181,4 +167,17 @@ public class ReceiptParserImpl implements ReceiptParser {
         return dstImage;
     }
 
+    private IplImage cropImage( IplImage srcImage, int fromX, int fromY,
+                                int toX, int toY){
+        cvSetImageROI(srcImage, cvRect(fromX,fromY,toX,toY));
+        IplImage destImage = cvCloneImage(srcImage);
+        cvCopy(srcImage, destImage);
+        return destImage;
+    }
+
+    private int EuclideanDist(int[] point1, int[] point2) {
+        int x = Math.abs(point1[0] - point2[0]);
+        int y = Math.abs(point1[1] - point2[1]);
+        return (int) Math.sqrt(x * x + y * y);
+    }
 }
