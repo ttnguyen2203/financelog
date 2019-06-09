@@ -175,7 +175,7 @@ public class ReceiptParserImpl implements ReceiptParser {
         IplImage dstImage = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
         opencv_imgproc.cvCvtColor(image, dstImage, opencv_imgproc.CV_BGR2GRAY);
         opencv_imgproc.cvSmooth(dstImage, dstImage, opencv_imgproc.CV_MEDIAN, 3, 0, 0, 0);
-        opencv_imgproc.cvThreshold(dstImage, dstImage, 0, 255, opencv_imgproc.CV_THRESH_OTSU)
+        opencv_imgproc.cvThreshold(dstImage, dstImage, 0, 255, opencv_imgproc.CV_THRESH_OTSU);
         return dstImage;
     }
 
