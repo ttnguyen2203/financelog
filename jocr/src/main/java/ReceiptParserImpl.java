@@ -78,31 +78,36 @@ public class ReceiptParserImpl implements ReceiptParser {
         @params:
             - cropped_image: output of cropReceipt
      */
-    //TODO: resource pathing 
+    //TODO: resource pathing
     public String readReceipt(IplImage croppedImage) {
         // preprocessing
         IplImage preprocessed = preprocessReceipt(croppedImage);
 
         opencv_core.Mat toMat = opencv_core.cvarrToMat(preprocessed);
 
-        final URL tessDataResource = getClass().getResource("/");
-        System.out.print(tessDataResource);
-//        final File tessFolder = new File(tessDataResource.toURI());
-//        final String tessFolderPath = tessFolder.getAbsolutePath();
-        //System.out.println(tessFolderPath);
-        BytePointer outText;
-        TessBaseAPI api = new TessBaseAPI();
-        if (api.Init("E:/Program Files/Tesseract-OCR/tessdata/", "eng") != 0) {
-            System.err.println("Could not initialize tesseract.");
-            System.exit(1);
+        try {
+            final URL tessDataResource = getClass().getResource("/tessdata");
+//            System.out.println(tessDataResource);
+            final File tessFolder = new File(tessDataResource.toURI());
+            final String tessFolderPath = tessFolder.getAbsolutePath();
+            System.out.println(tessFolderPath);
+            BytePointer outText;
+            TessBaseAPI api = new TessBaseAPI();
+            if (api.Init( tessFolderPath, "eng") != 0) {
+                System.err.println("Could not initialize tesseract.");
+                System.exit(1);
+            }
+            api.SetVariable("tessedit_char_whitelist", "0123456789,/ABCDEFGHIJKLMNOPQRSTUVWXY");
+            api.SetImage(toMat.data().asBuffer(), toMat.size().width(), toMat.size().height(), toMat.channels(), (int) toMat.elemSize1());
+            outText = api.GetUTF8Text();
+            String string = outText.getString();
+            api.End();
+            outText.deallocate();
+            return string;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        api.SetVariable("tessedit_char_whitelist", "0123456789,/ABCDEFGHIJKLMNOPQRSTUVWXY");
-        api.SetImage(toMat.data().asBuffer(),toMat.size().width(),toMat.size().height(),toMat.channels(), (int)toMat.elemSize1());
-        outText = api.GetUTF8Text();
-        String string = outText.getString();
-        api.End();
-        outText.deallocate();
-        return string;
     }
 
     private IplImage preprocessReceipt(IplImage image) {
